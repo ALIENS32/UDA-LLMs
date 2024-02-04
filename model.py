@@ -5,9 +5,9 @@ from feature_extracter.BERT import BERT
 
 
 class UDAModel(nn.Module):
-    def __init__(self, *args, **kwargs) -> None:
-        super(UDAModel).__init__(*args, **kwargs)
-        self.feature_extracter=BERT(args)
+    def __init__(self, LLM_path) -> None: # !
+        super(UDAModel,self).__init__()
+        self.feature_extracter=BERT(LLM_path)
         self.class_classifier=None
         self.domain_classifier=None
 

@@ -6,16 +6,32 @@ import torch.optim as optim
 import torch
 
 
-epoch_num=0
+epoch_num=10
 batch_size=10
 device='cuda'
 
 log_batch_num=100
 
+source_path='data/civil_train.json'
+target_path='data/criminal_train.json'
+test_path='data/criminal_test.json'
 
-source_loader=get_loader()
-target_loader=get_loader()
-test_loader=get_loader()
+LLM_path='Base-LLMs/bert-base-chinese'
+
+
+
+
+
+
+
+
+
+
+
+
+source_loader=get_loader(source_path,batch_size=batch_size)
+target_loader=get_loader(target_path,batch_size=batch_size)
+test_loader=get_loader(test_path,batch_size=batch_size)
 
 def train():
     '''
@@ -24,7 +40,7 @@ def train():
     
     '''
     
-    model=UDAModel()
+    model=UDAModel(LLM_path)
     optimizer = optim.Adam(model.parameters(), lr=1e-5)
 
     loss_class = torch.nn.NLLLoss()
@@ -35,7 +51,8 @@ def train():
     for epoch in range(epoch_num):
         loader_len=min(len(source_loader),len(target_loader))
 
-
+        source_iter = iter(source_loader)
+        target_iter = iter(target_loader)
         
         cnt=0
         while cnt<loader_len:
@@ -44,19 +61,21 @@ def train():
 
             optimizer.zero_grad()
 
+
+
             '''
             source
             '''
-            source_batch=next(source_loader)
+            source_batch=next(source_iter)
             texts,class_labels=source_batch
+            class_labels=torch.tensor(class_labels)
             domain_labels = torch.zeros(batch_size)
 
             if device=='cuda':
-                texts=texts.cuda()
                 class_labels=class_labels.cuda()
                 domain_labels=domain_labels.cuda()
 
-            class_output, domain_output = model(input_data=texts, alpha=alpha)
+            class_output, domain_output = model(input=texts, trade_off_param=alpha)
             err_s_label = loss_class(class_output, class_labels)
             err_s_domain = loss_domain(domain_output, domain_labels)
 
@@ -64,13 +83,11 @@ def train():
             '''
             target
             '''
-            target_batch=next(target_loader)
+            target_batch=next(target_iter)
             texts,class_labels=target_batch
             domain_labels=torch.ones(batch_size)
 
             if device=='cuda':
-                texts=texts.cuda()
-                class_labels=class_labels.cuda()
                 domain_labels=domain_labels.cuda()
 
             _, domain_output = model(input_data=texts, alpha=alpha)
