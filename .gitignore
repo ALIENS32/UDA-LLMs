@@ -12,3 +12,6 @@ data/civil_train.json
 data/criminal_test.json
 data/criminal_dev.json
 data/criminal_train.json
+feature_extracter/__pycache__/__init__.cpython-311.pyc
+feature_extracter/__pycache__/BERT.cpython-311.pyc
+__pycache__/utils.cpython-311.pyc
