@@ -97,9 +97,9 @@ def train():
                       % (epoch, cnt, loader_len, err_s_label.cpu().data.numpy(), err_s_domain.cpu().data.numpy(),
                          err_t_domain.cpu().data.numpy()))
 
-            test(test_path)
+        test(test_path)
 
-        print('done')
+    print('done')
 
 
 def test(test_path):
