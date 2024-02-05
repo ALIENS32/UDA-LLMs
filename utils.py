@@ -24,7 +24,7 @@ class Datasets(Dataset):
     def __getitem__(self, index):
         return self.data[index]['src'], self.data[index]['label']
 
-
+# 获得加载器和数据集大小
 def get_loader_and_length(fp, batch_size=2, shuffle=True, num_workers=1):
     dataset = Datasets(fp)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
