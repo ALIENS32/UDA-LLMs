@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 
 class MLP_CLASS_CLASSIFIER(nn.Module):
@@ -18,3 +19,10 @@ class MLP_CLASS_CLASSIFIER(nn.Module):
     def forward(self, input_feature):
         class_output = self.class_classifier(input_feature)
         return class_output
+    
+    def save_model(self,epoch_num):
+        torch.save(self.class_classifier.state_dict(), f'checkpoint/class_classifier/MLP/{epoch_num}.pth')
+
+    def load_model(self,epoch_num):
+        state_dict = torch.load(f'checkpoint/class_classifier/MLP/{epoch_num}.pth')
+        self.class_classifier.load_state_dict(state_dict)

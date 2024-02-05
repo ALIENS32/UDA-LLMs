@@ -13,8 +13,9 @@ import sys
 class BERT(nn.Module):
     def __init__(self, LLM_path):
         super(BERT, self).__init__()
-        self.tokenizer = BertTokenizer.from_pretrained(LLM_path)
-        self.bert = BertModel.from_pretrained(LLM_path, return_dict=True)
+        self.LLM_path=LLM_path
+        self.tokenizer = BertTokenizer.from_pretrained(self.LLM_path)
+        self.bert = BertModel.from_pretrained(self.LLM_path, return_dict=True)
         self.max_len = 128  # !
 
     def forward(self, texts):
@@ -23,3 +24,8 @@ class BERT(nn.Module):
         inputs=inputs.to('cuda')
         outputs = self.bert(**inputs)[1]
         return outputs
+    
+    def save_model(self,epoch_num):
+        self.bert.save_pretrained(f"checkpoint/base-LLMs/bert-base-chinese/{epoch_num}")  # 保存微调后的模型
+        self.tokenizer.save_pretrained(f"checkpoint/base-LLMs/bert-base-chinese/{epoch_num}")  # 保存tokenizer，以备后续使用
+

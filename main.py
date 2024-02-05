@@ -5,16 +5,17 @@ from model import UDAModel
 import torch.optim as optim
 import torch
 
-epoch_num = 20
+epoch_num = 1
 batch_size = 10
 device = 'cuda'
 lr = 1e-5
+load_epoch = None
 
 log_batch_num = 10
 
-source_path = 'data/civil_train.json'
-target_path = 'data/criminal_train.json'
-test_path = 'data/criminal_test.json'
+source_path = 'data/civil_sub_test.json'
+target_path = 'data/civil_sub_test.json'
+test_path = 'data/civil_sub_test.json'
 
 LLM_path = 'Base-LLMs/bert-base-chinese'
 
@@ -28,7 +29,7 @@ def train():
     source_loader, source_len = get_loader_and_length(source_path, batch_size=batch_size)
     target_loader, target_len = get_loader_and_length(target_path, batch_size=batch_size)
 
-    model = UDAModel(LLM_path)
+    model = UDAModel(LLM_path, load_epoch)
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     loss_class = torch.nn.NLLLoss()
@@ -40,6 +41,7 @@ def train():
         loss_class = loss_class.cuda()
 
     for epoch in range(epoch_num):
+        cur_epoch = 0
         loader_len = min(len(source_loader), len(target_loader))
 
         source_iter = iter(source_loader)
@@ -96,8 +98,10 @@ def train():
                 print('epoch: %d, [iter: %d / all %d], err_s_label: %f, err_s_domain: %f, err_t_domain: %f' \
                       % (epoch, cnt, loader_len, err_s_label.cpu().data.numpy(), err_s_domain.cpu().data.numpy(),
                          err_t_domain.cpu().data.numpy()))
-
+        model.save(load_epoch+epoch_num)
         test(test_path)
+
+        cur_epoch += 1
 
     print('done')
 
