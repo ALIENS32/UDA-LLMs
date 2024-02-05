@@ -5,8 +5,8 @@ Base-LLMs/bert-base-chinese/pytorch_model.bin
 Base-LLMs/bert-base-chinese/tokenizer_config.json
 Base-LLMs/bert-base-chinese/tokenizer.json
 Base-LLMs/bert-base-chinese/vocab.txt
-feature_extracter/__pycache__/__init__.cpython-311.pyc
-feature_extracter/__pycache__/BERT.cpython-311.pyc
+feature_extractor/__pycache__/__init__.cpython-311.pyc
+feature_extractor/__pycache__/BERT.cpython-311.pyc
 __pycache__/utils.cpython-311.pyc
 __pycache__/__init__.cpython-311.pyc
 __pycache__/main.cpython-311-pytest-7.4.0.pyc
@@ -21,3 +21,5 @@ __pycache__/model.cpython-311.pyc
 __pycache__/main.cpython-311.pyc
 class_classifier/__pycache__/MLP.cpython-311.pyc
 domain_classifier/__pycache__/MLP.cpython-311.pyc
+class_classifier/__pycache__/__init__.cpython-311.pyc
+domain_classifier/__pycache__/__init__.cpython-311.pyc

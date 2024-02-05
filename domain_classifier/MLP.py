@@ -3,7 +3,7 @@ import torch
 
 
 class MLP_DOMAIN_CLASSIFIER(nn.Module):
-    def __init__(self):
+    def __init__(self,args):
         super(MLP_DOMAIN_CLASSIFIER,self).__init__()
         self.domain_classifier = nn.Sequential()
         self.domain_classifier.add_module('d_fc1', nn.Linear(768, 100))
@@ -16,9 +16,9 @@ class MLP_DOMAIN_CLASSIFIER(nn.Module):
         domain_output = self.domain_classifier(input_feature)
         return domain_output
 
-    def save_model(self, epoch_num):
-        torch.save(self.domain_classifier.state_dict(), f'checkpoint/domain_classifier/MLP/{epoch_num}.pth')
+    def save_model(self, model_file_path):
+        torch.save(self.domain_classifier.state_dict(), model_file_path+'/MLP_DOMAIN_CLASSIFIER.pth')
 
-    def load_model(self, epoch_num):
-        state_dict = torch.load(f'checkpoint/domain_classifier/MLP/{epoch_num}.pth')
+    def load_model(self, model_file_path):
+        state_dict = torch.load(model_file_path+'/MLP_DOMAIN_CLASSIFIER.pth')
         self.domain_classifier.load_state_dict(state_dict)

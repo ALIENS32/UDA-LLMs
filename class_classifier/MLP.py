@@ -3,7 +3,7 @@ import torch
 
 
 class MLP_CLASS_CLASSIFIER(nn.Module):
-    def __init__(self):
+    def __init__(self, args):
         super(MLP_CLASS_CLASSIFIER, self).__init__()
         self.class_classifier = nn.Sequential()
         self.class_classifier.add_module('c_fc1', nn.Linear(768, 100))
@@ -19,10 +19,10 @@ class MLP_CLASS_CLASSIFIER(nn.Module):
     def forward(self, input_feature):
         class_output = self.class_classifier(input_feature)
         return class_output
-    
-    def save_model(self,epoch_num):
-        torch.save(self.class_classifier.state_dict(), f'checkpoint/class_classifier/MLP/{epoch_num}.pth')
 
-    def load_model(self,epoch_num):
-        state_dict = torch.load(f'checkpoint/class_classifier/MLP/{epoch_num}.pth')
+    def save_model(self, model_file_path):
+        torch.save(self.class_classifier.state_dict(), model_file_path + '/MLP_CLASS_CLASSIFIER.pth')
+
+    def load_model(self, model_file_path):
+        state_dict = torch.load(model_file_path+'/MLP_CLASS_CLASSIFIER.pth')
         self.class_classifier.load_state_dict(state_dict)
