@@ -1,14 +1,16 @@
 import torch.nn as nn
 from torch.autograd import Function
 from feature_extracter.BERT import BERT
+from class_classifier.MLP import MLP_CLASS_CLASSIFIER
+from domain_classifier.MLP import MLP_DOMAIN_CLASSIFIER
 
 
 class UDAModel(nn.Module):
     def __init__(self, LLM_path) -> None:  # !
         super(UDAModel, self).__init__()
         self.feature_extracter = BERT(LLM_path)
-        self.class_classifier = nn.Linear(768, 2)
-        self.domain_classifier = nn.Linear(768, 2)
+        self.class_classifier = MLP_CLASS_CLASSIFIER()
+        self.domain_classifier = MLP_DOMAIN_CLASSIFIER()
 
     def forward(self, input, trade_off_param):
         feature = self.feature_extracter(input)

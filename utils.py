@@ -23,10 +23,10 @@ class Datasets(Dataset):
     def __getitem__(self, index):
         return self.data[index]['src'], self.data[index]['label']
     
-def get_loader(fp, batch_size=2, shuffle=True, num_workers=0):
+def get_loader_and_length(fp, batch_size=2, shuffle=True, num_workers=0):
     dataset = Datasets(fp)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
-    return loader
+    return loader,len(dataset)
     
     
 

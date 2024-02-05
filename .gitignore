@@ -26,3 +26,5 @@ __pycache__/model.cpython-311.pyc
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/inspectionProfiles/Project_Default.xml
 __pycache__/main.cpython-311.pyc
+class_classifier/__pycache__/MLP.cpython-311.pyc
+domain_classifier/__pycache__/MLP.cpython-311.pyc

@@ -1,25 +1,22 @@
 import argparse
 import numpy as np
-from utils import get_loader
+from utils import get_loader_and_length
 from model import UDAModel
 import torch.optim as optim
 import torch
 
-epoch_num = 10
+epoch_num = 20
 batch_size = 10
 device = 'cuda'
+lr = 1e-5
 
-log_batch_num = 100
+log_batch_num = 10
 
 source_path = 'data/civil_train.json'
 target_path = 'data/criminal_train.json'
 test_path = 'data/criminal_test.json'
 
 LLM_path = 'Base-LLMs/bert-base-chinese'
-
-source_loader = get_loader(source_path, batch_size=batch_size)
-target_loader = get_loader(target_path, batch_size=batch_size)
-test_loader = get_loader(test_path, batch_size=batch_size)
 
 
 def train():
@@ -28,9 +25,11 @@ def train():
     
     
     '''
+    source_loader, source_len = get_loader_and_length(source_path, batch_size=batch_size)
+    target_loader, target_len = get_loader_and_length(target_path, batch_size=batch_size)
 
     model = UDAModel(LLM_path)
-    optimizer = optim.Adam(model.parameters(), lr=1e-5)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
 
     loss_class = torch.nn.NLLLoss()
     loss_domain = torch.nn.NLLLoss()
@@ -59,7 +58,7 @@ def train():
             source_batch = next(source_iter)
             texts, class_labels = source_batch
             class_labels = torch.tensor(class_labels)
-            domain_labels = torch.zeros(batch_size).long()
+            domain_labels = torch.zeros(len(class_labels)).long()
 
             if device == 'cuda':
                 class_labels = class_labels.cuda()
@@ -74,7 +73,7 @@ def train():
             '''
             target_batch = next(target_iter)
             texts, class_labels = target_batch
-            domain_labels = torch.ones(batch_size).long()
+            domain_labels = torch.ones(len(class_labels)).long()
 
             if device == 'cuda':
                 domain_labels = domain_labels.cuda()
@@ -94,21 +93,41 @@ def train():
             '''
             cnt += 1
             if cnt % log_batch_num == 0:
-                print('log')
+                print('epoch: %d, [iter: %d / all %d], err_s_label: %f, err_s_domain: %f, err_t_domain: %f' \
+                      % (epoch, cnt, loader_len, err_s_label.cpu().data.numpy(), err_s_domain.cpu().data.numpy(),
+                         err_t_domain.cpu().data.numpy()))
+
+            test(test_path)
+
+        print('done')
 
 
-def test():
-    model = UDAModel()
+def test(test_path):
+    test_loader, test_len = get_loader_and_length(test_path, batch_size=batch_size)
+
+    model = UDAModel(LLM_path=LLM_path)
     acc_num = 0
-    with torch.inference_mode():
-        for batch in test_loader:
-            if device == 'cuda':
-                batch = {k: v.cuda() for k, v in batch.items()}
-            output = model(**batch)
-            acc_num += (output.long() == batch["labels"].long()).float().sum()
+    if device == 'cuda':
+        model = model.cuda()
 
-        print(f'acc:{acc_num / len(test_loader)}\n')
+    test_iter = iter(test_loader)
+    with torch.inference_mode():
+        for test_batch in test_iter:
+            texts, class_labels = test_batch
+            if device == 'cuda':
+                class_labels = class_labels.cuda()
+
+            class_output, _ = model(input=texts, trade_off_param=0)
+            pred = torch.argmax(class_output, dim=-1)
+            acc_num += (pred.long() == class_labels.long()).float().sum()
+
+        acc_num = int(acc_num)
+        round_acc = round(acc_num / test_len, 4)
+        # acc_num += (output.long() == batch["labels"].long()).float().sum()
+
+    print(f'test acc:{round_acc} correct/total: {acc_num}/{test_len}\n')
 
 
 if __name__ == '__main__':
     train()
+    test(source_path)
